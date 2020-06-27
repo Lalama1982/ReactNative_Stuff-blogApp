@@ -1,5 +1,5 @@
 import createDataContext from "./createDataContext";
-import { call } from "react-native-reanimated";
+import jsonServer from "../api/jsonServer";
 
 //const BlogContext = React.createContext(); // Context is imported from "createDataContext.js"
 
@@ -10,6 +10,9 @@ import { call } from "react-native-reanimated";
 
 const blogReducer = (state, action) => {
   switch (action.type) {
+    case "get_blogposts":
+      return action.payload;
+
     case "edit_blogpost":
       return state.map((blogPost) => {
         return blogPost.id === action.payload.id ? action.payload : blogPost;
@@ -44,9 +47,23 @@ const blogReducer = (state, action) => {
   }
 };
 
-const addBlogPost = (dispatch) => {
-  return (title, content, callback) => {
+const getBlogPosts = (dispatch) => {
+  return async () => {
+    const response = await jsonServer.get("/blogposts");
+    dispatch({ type: "get_blogposts", payload: response.data });
+  };
+};
+
+const addBlogPost = () => {
+  return async (title, content, callback) => {
+    await jsonServer.post("/blogposts", { title, content });
+    /*
+    // Above implementing the "API method" & case "add_blogpost"is no longer used. Also use of "const addBlogPost = (dispatch) => {"
+    // More like; updating of "state" Context variable is abondanded and updating of "db.json" is adopted.
+    // Only the "getBlogPosts" deals with the contex now
     dispatch({ type: "add_blogpost", payload: { title, content } });
+    */
+
     if (callback) {
       callback();
     }
@@ -54,13 +71,25 @@ const addBlogPost = (dispatch) => {
 };
 
 const deleteBlogPost = (dispatch) => {
-  return (id) => {
+  return async (id) => {
+    await jsonServer.delete(`/blogposts/${id}`);
+    /**
+     * Now above deletes the blog post from "db.json" file
+     * Yet it is still in the "state" context variable
+     * Hence used the exisitng method below to remove it from context
+     */
     dispatch({ type: "delete_blogpost", payload: id }); // "payload" & "type" are not keywords. "payload" = id of the blogpost
   };
 };
 
 const editBlogPost = (dispatch) => {
-  return (id, title, content, callback) => {
+  return async (id, title, content, callback) => {
+    await jsonServer.put(`/blogposts/${id}`, { title, content });
+    /**
+     * Now above updates the blog post from "db.json" file
+     * Yet it is still in the "state" context variable
+     * Hence used the exisitng method below to edit it from context
+     */
     dispatch({ type: "edit_blogpost", payload: { id, title, content } });
     if (callback) {
       callback();
@@ -70,9 +99,10 @@ const editBlogPost = (dispatch) => {
 
 export const { Context, Provider } = createDataContext(
   blogReducer,
-  { addBlogPost, deleteBlogPost, editBlogPost },
-  [{ title: "Default Title", content: "Default Content", id: "1" }]
+  { addBlogPost, deleteBlogPost, editBlogPost, getBlogPosts },
+  []
   /**
+   * [{ title: "Default Title", content: "Default Content", id: "1" }]
    * This will set the "state" variable with default attributes
    * In this case at "IndexScreen" for "state", they will be shown at initiation
    */

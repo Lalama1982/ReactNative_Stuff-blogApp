@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,11 +15,30 @@ import { Context as BlogContext } from "../context/BlogContext";
  */
 
 const IndexScreen = ({ navigation }) => {
-  /*// Example of receiving: const valueFromBlogContext = useContext(BlogContext); // fetching the value set at "BlogContex.js" of "provider"*/
-
-  /* // "const { data, addBlogPost }" is "BlogContext.Provider value" at "BlogContext_withOut_contextTemplate.js" */
-  const { state, addBlogPost, deleteBlogPost } = useContext(BlogContext);
+  const { state, deleteBlogPost, getBlogPosts } = useContext(BlogContext);
   // "state" is in reference to the var created at "createDataContext.js"
+
+  /**
+   * Calling just "getBlogPosts" will result in an infinte rule.
+   * Hence the use of "useEffect"
+   * Now "getBlogPosts", updates the "state" variable hence
+   * - the "FlatList" below is get updated from the "db.json" file at "jsonserver" project
+   */
+  useEffect(() => {
+    getBlogPosts();
+
+    // Below is like listener class, it get triggered when the "IndexScreen" gets the focus
+    const listener = navigation.addListener("didFocus", () => {
+      getBlogPosts();
+    });
+
+    // Below function will get executed everytime
+    // In order to fix issues like memory leaks, "listener" is removed once the "getBlogPosts" is executed
+    return () => {
+      listener.remove();
+    };
+
+  }, []);
 
   return (
     <View>

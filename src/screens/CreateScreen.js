@@ -3,8 +3,7 @@ import { StyleSheet } from "react-native";
 import { Context } from "../context/BlogContext";
 import BlogPostForm from "../Components/BlogPostForm";
 
-const CreateScreen = ({ navigation }) => {
-  // For Changes prior to "BlogPostForm.js", refer "CreateScreen_without_BlogPostForm"
+const CreateScreen = ({ navigation }) => {  
   const { addBlogPost } = useContext(Context);
 
   return (
