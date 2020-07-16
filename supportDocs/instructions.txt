@@ -1,0 +1,7 @@
+1) Open the "jsonserver" package in another VS Code Instance
+2) Open 2 terminals
+3) On terminal 1: Execute "npm run db"
+   - Should not show any error
+4) On terminal 2: Execute "npm run tunnel"
+5) Back at "Blog" project, go to "jsonserver.js" and update "baseURL".
+6) GitHub Repo: ReactNative_Stuff-blogApp
